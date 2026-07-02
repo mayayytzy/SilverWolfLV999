@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Jadwal</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        /* ============================================================
+           THEME SANGAR – TANPA EMOT BERLEBIH
+           ============================================================ */
+        :root {
+            --bg-main: #060b15;
+            --panel-bg: rgba(8, 14, 30, 0.6);
+            --panel-border: rgba(0, 255, 255, 0.15);
+            --panel-glow: rgba(0, 255, 255, 0.08);
+
+            --text-main: #f0f4ff;
+            --text-muted: #8899bb;
+
+            --bg-image: url('Pages/mbg.jpg');
+
+            --color-eat: #facc15;
+            --color-sleep: #a78bfa;
+            --color-pkl: #38bdf8;
+            --color-holiday: #f43f5e;
+            --color-break: #34d399;
+
+            --color-primary: #00e5ff;
+            --color-success: #00e676;
+            --color-danger: #ff1744;
+            --color-edit: #ffea00;
+
+            --font-main: 'Poppins', sans-serif;
+            --transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: var(--font-main);
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 30px 20px;
+            background-image: linear-gradient(rgba(6, 11, 21, 0.55), rgba(6, 11, 21, 0.55)), var(--bg-image);
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            background-repeat: no-repeat;
+            color: var(--text-main);
+        }
+
+        @keyframes fade-in {
+            0% { opacity: 0; transform: translateY(30px) scale(0.98); }
+            100% { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        @keyframes pulse-neon {
+            0%, 100% { text-shadow: 0 0 10px rgba(0, 229, 255, 0.3), 0 0 30px rgba(0, 229, 255, 0.1); }
+            50% { text-shadow: 0 0 20px rgba(0, 229, 255, 0.6), 0 0 60px rgba(0, 229, 255, 0.2); }
+        }
+
+        @keyframes border-glow {
+            0% { border-color: rgba(0, 229, 255, 0.1); }
+            50% { border-color: rgba(0, 229, 255, 0.4); }
+            100% { border-color: rgba(0, 229, 255, 0.1); }
+        }
+
+        .container {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 28px;
+            max-width: 1024px;
+            width: 100%;
+            animation: fade-in 0.9s var(--transition) forwards;
+        }
+
+        @media (min-width: 768px) {
+            .container {
+                grid-template-columns: 1fr 1.3fr;
+                align-items: start;
+            }
+        }
+
+        .card {
+            background: var(--panel-bg);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            border: 1px solid var(--panel-border);
+            border-radius: 24px;
+            padding: 35px 30px;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.7), 0 0 40px rgba(0, 229, 255, 0.04);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.3s var(--transition), box-shadow 0.4s, border-color 0.3s;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle at 30% 20%, var(--panel-glow), transparent 70%);
+            pointer-events: none;
+            opacity: 0.5;
+        }
+
+        .card:hover {
+            transform: translateY(-6px) scale(1.01);
+            border-color: rgba(0, 229, 255, 0.3);
+            box-shadow: 0 35px 80px rgba(0, 0, 0, 0.8), 0 0 60px rgba(0, 229, 255, 0.08);
+        }
+
+        /* TYPOGRAPHY – TANPA EMOT */
+        .hero-label {
+            font-weight: 800;
+            text-transform: uppercase;
+            font-size: 13px;
+            letter-spacing: 4px;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+            background: rgba(0, 229, 255, 0.06);
+            padding: 4px 18px;
+            border-radius: 100px;
+            display: inline-block;
+            border: 1px solid rgba(0, 229, 255, 0.08);
+        }
+
+        #hari {
+            margin-top: 12px;
+            font-size: 40px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            background: linear-gradient(135deg, #ffffff, #b0c4ff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        #tanggal {
+            margin-top: 2px;
+            color: var(--text-muted);
+            font-size: 16px;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+        }
+
+        #jam {
+            margin-top: 28px;
+            font-size: 56px;
+            font-weight: 800;
+            letter-spacing: -1px;
+            background: linear-gradient(135deg, #00e5ff, #7c4dff, #00e5ff);
+            background-size: 200% 200%;
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: pulse-neon 3s infinite alternate, fade-in 1s;
+            font-feature-settings: "tnum";
+        }
+
+        h2 {
+            font-size: 20px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            margin-bottom: 22px;
+            text-align: left;
+            border-bottom: 2px solid rgba(0, 229, 255, 0.1);
+            padding-bottom: 16px;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-transform: uppercase;
+        }
+
+        h2::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: linear-gradient(90deg, rgba(0,229,255,0.2), transparent);
+        }
+
+        /* BUTTONS */
+        .btn {
+            font-family: inherit;
+            font-weight: 600;
+            font-size: 14px;
+            padding: 12px 22px;
+            border-radius: 14px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.25s var(--transition);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-add {
+            background: linear-gradient(135deg, #00e5ff, #2979ff);
+            color: #0a0f1f;
+            width: 100%;
+            margin-bottom: 18px;
+            font-weight: 700;
+            box-shadow: 0 4px 20px rgba(0, 229, 255, 0.2);
+        }
+
+        .btn-add:hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 8px 30px rgba(0, 229, 255, 0.35);
+        }
+
+        .btn-submit {
+            background: linear-gradient(135deg, #00e676, #00c853);
+            color: #0a0f1f;
+            font-weight: 700;
+            box-shadow: 0 4px 15px rgba(0, 230, 118, 0.2);
+        }
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 230, 118, 0.3);
+        }
+
+        .btn-cancel {
+            background: rgba(255, 255, 255, 0.04);
+            color: var(--text-main);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+        }
+        .btn-cancel:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.15);
+        }
+
+        .btn-action {
+            padding: 6px 8px;
+            font-size: 14px;
+            border-radius: 10px;
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-action:hover {
+            background: rgba(255, 255, 255, 0.06);
+            color: var(--text-main);
+        }
+        .btn-edit:hover { color: var(--color-edit); transform: scale(1.1); }
+        .btn-delete:hover { color: var(--color-danger); transform: scale(1.1); background: rgba(255, 23, 68, 0.08); }
+
+        /* FORM */
+        .schedule-form {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            margin-bottom: 20px;
+            background: rgba(0, 0, 0, 0.35);
+            padding: 22px 20px;
+            border-radius: 18px;
+            border: 1px solid rgba(0, 229, 255, 0.08);
+            text-align: left;
+            animation: fade-in 0.35s var(--transition);
+        }
+
+        #inputWaktu {
+            display: none !important;
+        }
+
+        .time-picker-range {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            width: 100%;
+        }
+
+        .time-field {
+            flex: 1;
+            position: relative;
+        }
+
+        .time-field::before {
+            content: attr(data-placeholder);
+            position: absolute;
+            left: 12px;
+            top: -10px;
+            background: #0b1324;
+            padding: 0 8px;
+            font-size: 10px;
+            font-weight: 600;
+            color: var(--text-muted);
+            border-radius: 6px;
+            letter-spacing: 0.5px;
+        }
+
+        .schedule-form input[type="text"],
+        .schedule-form input[type="time"],
+        .schedule-form select {
+            width: 100%;
+            padding: 12px 16px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            background: rgba(0, 0, 0, 0.3);
+            color: var(--text-main);
+            font-size: 14px;
+            outline: none;
+            transition: all 0.2s;
+        }
+
+        input[type="time"]::-webkit-calendar-picker-indicator {
+            filter: invert(1);
+            cursor: pointer;
+            opacity: 0.5;
+        }
+
+        .schedule-form input:focus,
+        .schedule-form select:focus {
+            border-color: rgba(0, 229, 255, 0.4);
+            background: rgba(0, 0, 0, 0.5);
+            box-shadow: 0 0 0 4px rgba(0, 229, 255, 0.06);
+        }
+
+        .schedule-form input::placeholder {
+            color: rgba(255, 255, 255, 0.2);
+        }
+
+        .schedule-form select option {
+            background: #0b1324;
+            color: var(--text-main);
+        }
+
+        /* LIST */
+        .schedule-list {
+            list-style: none;
+            text-align: left;
+            max-height: 460px;
+            overflow-y: auto;
+            padding-right: 4px;
+        }
+
+        .schedule-list::-webkit-scrollbar { width: 4px; }
+        .schedule-list::-webkit-scrollbar-track { background: transparent; }
+        .schedule-list::-webkit-scrollbar-thumb { background: rgba(0, 229, 255, 0.2); border-radius: 20px; }
+
+        .schedule-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 14px 16px;
+            margin-bottom: 12px;
+            background: rgba(8, 14, 30, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            border-radius: 16px;
+            transition: all 0.2s var(--transition);
+            cursor: grab;
+            user-select: none;
+            position: relative;
+            backdrop-filter: blur(4px);
+        }
+
+        .schedule-item:hover {
+            background: rgba(15, 25, 50, 0.8);
+            border-color: rgba(0, 229, 255, 0.15);
+            transform: translateX(4px);
+        }
+
+        .schedule-item.eat { border-left: 5px solid var(--color-eat); }
+        .schedule-item.sleep { border-left: 5px solid var(--color-sleep); }
+        .schedule-item.pkl { border-left: 5px solid var(--color-pkl); }
+        .schedule-item.holiday { border-left: 5px solid var(--color-holiday); }
+        .schedule-item.break { border-left: 5px solid var(--color-break); }
+
+        .schedule-item.active-now {
+            background: rgba(0, 229, 255, 0.08) !important;
+            border-color: rgba(0, 229, 255, 0.3) !important;
+            box-shadow: 0 0 30px rgba(0, 229, 255, 0.05), inset 0 0 20px rgba(0, 229, 255, 0.03);
+            animation: border-glow 2s infinite;
+        }
+
+        .drag-handle {
+            font-size: 16px;
+            color: rgba(255, 255, 255, 0.12);
+            margin-right: 16px;
+            cursor: grab;
+        }
+
+        .content-area {
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+            gap: 2px;
+        }
+
+        .label {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text-main);
+            letter-spacing: -0.2px;
+        }
+
+        .live-status {
+            font-size: 11px;
+            font-weight: 700;
+            color: #00e5ff;
+            animation: pulse-neon 2s infinite;
+            letter-spacing: 0.3px;
+        }
+
+        .actions {
+            display: flex;
+            align-items: center;
+            gap: 2px;
+        }
+
+        .time {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-muted);
+            background: rgba(0, 0, 0, 0.3);
+            padding: 4px 12px;
+            border-radius: 20px;
+            margin-right: 6px;
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            letter-spacing: 0.2px;
+        }
+
+        .sortable-ghost {
+            opacity: 0.2;
+            background: rgba(0, 229, 255, 0.02) !important;
+            border: 1px dashed rgba(0, 229, 255, 0.2) !important;
+        }
+        .sortable-chosen {
+            background: rgba(0, 229, 255, 0.05) !important;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+        }
+
+        small {
+            display: block;
+            margin-top: 22px;
+            color: var(--text-muted);
+            font-size: 11px;
+            letter-spacing: 0.5px;
+            opacity: 0.6;
+            font-weight: 400;
+        }
+
+        /* ============================================================
+           TOAST NOTIFICATION – SANGAR EDITION
+           ============================================================ */
+        .toast-container {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            max-width: 380px;
+            width: 100%;
+            pointer-events: none;
+        }
+
+        .toast {
+            pointer-events: auto;
+            padding: 16px 22px;
+            border-radius: 14px;
+            background: rgba(8, 14, 30, 0.92);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(0, 229, 255, 0.15);
+            color: #f0f4ff;
+            font-weight: 600;
+            font-size: 14px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6), 0 0 30px rgba(0, 229, 255, 0.05);
+            transform: translateX(120%);
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-left: 4px solid #00e5ff;
+        }
+
+        .toast.show {
+            transform: translateX(0);
+            opacity: 1;
+        }
+
+        .toast.error {
+            border-left-color: #ff1744;
+            border-color: rgba(255, 23, 68, 0.2);
+        }
+
+        .toast.success {
+            border-left-color: #00e676;
+            border-color: rgba(0, 230, 118, 0.2);
+        }
+
+        .toast-icon {
+            font-size: 20px;
+            line-height: 1;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+
+    <div class="card">
+        <div class="hero-label">Hari Ini</div>
+        <div id="hari"></div>
+        <div id="tanggal"></div>
+        <div id="jam"></div>
+    </div>
+
+    <div class="card">
+        <h2>Manajemen Jadwal</h2>
+
+        <button class="btn btn-add" id="btnBukaForm" onclick="bukaForm_Override()">+ Tambah</button>
+
+        <div class="schedule-form" id="areaForm" style="display: none;">
+            <input type="hidden" id="editIndex">
+
+            <input type="text" id="inputLabel" placeholder="Nama kegiatan" required>
+
+            <input type="text" id="inputWaktu" required>
+
+            <div class="time-picker-range">
+                <div class="time-field" data-placeholder="Mulai">
+                    <input type="time" id="jamMulai" oninput="syncTimeInputs()">
+                </div>
+                <span style="color: var(--text-muted); font-weight: 300;">—</span>
+                <div class="time-field" data-placeholder="Selesai">
+                    <input type="time" id="jamSelesai" oninput="syncTimeInputs()">
+                </div>
+            </div>
+
+            <select id="inputType">
+                <option value="eat">Makan</option>
+                <option value="sleep">Tidur</option>
+                <option value="pkl">PKL</option>
+                <option value="holiday">Liburan</option>
+                <option value="break">Istirahat</option>
+            </select>
+
+            <div style="display: flex; gap: 12px; margin-top: 6px;">
+                <button class="btn btn-submit" style="flex: 1;" onclick="simpanJadwal()">Simpan</button>
+                <button class="btn btn-cancel" style="flex: 1;" onclick="tutupForm()">Batal</button>
+            </div>
+        </div>
+
+        <ul class="schedule-list" id="wadahJadwal"></ul>
+
+        <small>↕ Drag untuk mengurutkan</small>
+    </div>
+
+</div>
+
+<!-- Toast Container -->
+<div class="toast-container" id="toastContainer"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+
+<script>
+    // ================================================================
+    // TOAST SYSTEM
+    // ================================================================
+    function showToast(pesan, jenis = 'success') {
+        const container = document.getElementById('toastContainer');
+        
+        const toast = document.createElement('div');
+        toast.className = `toast ${jenis}`;
+        
+        const icon = jenis === 'success' ? '✅' : jenis === 'error' ? '❌' : 'ℹ️';
+        
+        toast.innerHTML = `
+            <span class="toast-icon">${icon}</span>
+            <span>${pesan}</span>
+        `;
+        
+        container.appendChild(toast);
+        
+        // Muncul dengan animasi
+        requestAnimationFrame(() => {
+            toast.classList.add('show');
+        });
+        
+        // Hilang otomatis setelah 3 detik
+        setTimeout(() => {
+            toast.classList.remove('show');
+            setTimeout(() => {
+                if (toast.parentNode) toast.remove();
+            }, 500);
+        }, 3000);
+    }
+
+    // ================================================================
+    // JAVASCRIPT UTAMA
+    // ================================================================
+    const namaHari = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
+    const namaBulan = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+
+    function update() {
+        const now = new Date();
+        document.getElementById("hari").textContent = namaHari[now.getDay()];
+        document.getElementById("tanggal").textContent = `${now.getDate()} ${namaBulan[now.getMonth()]} ${now.getFullYear()}`;
+        document.getElementById("jam").textContent = now.toLocaleTimeString("id-ID");
+        hitungWaktuBerjalan();
+    }
+
+    const defaultJadwal = [
+        { label: "Sarapan", waktu: "07:00 - 08:00", type: "eat" },
+        { label: "PKL Utama", waktu: "09:00 - 12:00", type: "pkl" },
+        { label: "Makan Siang", waktu: "12:00 - 13:00", type: "eat" },
+        { label: "Istirahat", waktu: "15:00 - 15:30", type: "break" },
+        { label: "Tidur Malam", waktu: "22:00 - 05:00", type: "sleep" }
+    ];
+
+    let daftarJadwal = JSON.parse(localStorage.getItem("jadwalHarian_Drag")) || defaultJadwal;
+
+    function renderJadwal() {
+        const wadah = document.getElementById("wadahJadwal");
+        wadah.innerHTML = "";
+
+        if (daftarJadwal.length === 0) {
+            wadah.innerHTML = `
+                <li style="text-align:center; padding: 40px 20px; color: var(--text-muted); border: 1px dashed rgba(255,255,255,0.1); border-radius: 16px; list-style:none;">
+                    <div style="font-size: 28px; margin-bottom: 10px;">📋</div>
+                    Belum ada jadwal hari ini.<br>
+                    <span style="font-size: 13px; opacity:0.7;">Klik "Tambah" untuk membuat kegiatan baru.</span>
+                </li>
+            `;
+            simpanKeLocalStorage();
+            return;
+        }
+
+        daftarJadwal.forEach((item, index) => {
+            const li = document.createElement("li");
+            li.className = `schedule-item ${item.type}`;
+            li.setAttribute('data-index-asal', index);
+            li.id = `item-jadwal-${index}`;
+
+            li.innerHTML = `
+                <div class="drag-handle">☰</div>
+                <div class="content-area">
+                    <span class="label">${item.label}</span>
+                    <span class="live-status" id="status-${index}"></span>
+                </div>
+                <div class="actions">
+                    <span class="time">${item.waktu}</span>
+                    <button class="btn btn-action btn-edit" onclick="editJadwal(${index})">✎</button>
+                    <button class="btn btn-action btn-delete" onclick="hapusJadwal(${index})">✕</button>
+                </div>
+            `;
+            wadah.appendChild(li);
+        });
+        simpanKeLocalStorage();
+        hitungWaktuBerjalan();
+    }
+
+    function hitungWaktuBerjalan() {
+        const sekarang = new Date();
+        const menitSekarangTotal = (sekarang.getHours() * 60) + sekarang.getMinutes();
+
+        daftarJadwal.forEach((item, index) => {
+            const statusEl = document.getElementById(`status-${index}`);
+            const containerEl = document.getElementById(`item-jadwal-${index}`);
+            if (!statusEl || !containerEl || !item.waktu.includes(" - ")) return;
+
+            const [waktuMulai, waktuSelesai] = item.waktu.split(" - ");
+            const [jamMulai, minMulai] = waktuMulai.split(":").map(Number);
+            const [jamSelesai, minSelesai] = waktuSelesai.split(":").map(Number);
+
+            let totalMenitMulai = (jamMulai * 60) + minMulai;
+            let totalMenitSelesai = (jamSelesai * 60) + minSelesai;
+
+            let sedangAktif = false;
+            let sisaMenit = 0;
+
+            if (totalMenitSelesai < totalMenitMulai) {
+                if (menitSekarangTotal >= totalMenitMulai || menitSekarangTotal < totalMenitSelesai) {
+                    sedangAktif = true;
+                    sisaMenit = menitSekarangTotal >= totalMenitMulai
+                        ? (1440 - menitSekarangTotal) + totalMenitSelesai
+                        : totalMenitSelesai - menitSekarangTotal;
+                }
+            } else {
+                if (menitSekarangTotal >= totalMenitMulai && menitSekarangTotal < totalMenitSelesai) {
+                    sedangAktif = true;
+                    sisaMenit = totalMenitSelesai - menitSekarangTotal;
+                }
+            }
+
+            if (sedangAktif) {
+                containerEl.classList.add("active-now");
+                if (sisaMenit >= 60) {
+                    const jam = Math.floor(sisaMenit / 60);
+                    const mnt = sisaMenit % 60;
+                    statusEl.textContent = `Sedang berjalan: ${jam}j ${mnt}m lagi`;
+                } else {
+                    statusEl.textContent = `Sedang berjalan: ${sisaMenit}m lagi`;
+                }
+            } else {
+                containerEl.classList.remove("active-now");
+                statusEl.textContent = "";
+            }
+        });
+    }
+
+    function simpanKeLocalStorage() {
+        localStorage.setItem("jadwalHarian_Drag", JSON.stringify(daftarJadwal));
+    }
+
+    const wadahJadwalElement = document.getElementById('wadahJadwal');
+    new Sortable(wadahJadwalElement, {
+        handle: '.drag-handle',
+        animation: 250,
+        ghostClass: 'sortable-ghost',
+        chosenClass: 'sortable-chosen',
+        onEnd: function(evt) {
+            const currentItems = document.querySelectorAll('.schedule-item');
+            const newDaftarJadwal = [];
+            currentItems.forEach(item => {
+                const originIndex = parseInt(item.getAttribute('data-index-asal'), 10);
+                newDaftarJadwal.push(daftarJadwal[originIndex]);
+            });
+            daftarJadwal = newDaftarJadwal;
+            simpanKeLocalStorage();
+            renderJadwal();
+            showToast('Urutan jadwal berhasil diubah!', 'success');
+        },
+    });
+
+    function bukaForm() {
+        document.getElementById("areaForm").style.display = "flex";
+        document.getElementById("btnBukaForm").style.display = "none";
+        document.getElementById("editIndex").value = "";
+    }
+
+    function tutupForm() {
+        document.getElementById("areaForm").style.display = "none";
+        document.getElementById("btnBukaForm").style.display = "block";
+        document.getElementById("inputLabel").value = "";
+        document.getElementById("inputWaktu").value = "";
+        document.getElementById("jamMulai").value = "";
+        document.getElementById("jamSelesai").value = "";
+    }
+
+    function simpanJadwal() {
+        const label = document.getElementById("inputLabel").value;
+        const waktu = document.getElementById("inputWaktu").value;
+        const type = document.getElementById("inputType").value;
+        const editIndex = document.getElementById("editIndex").value;
+
+        // Validasi
+        if (!label || !waktu) {
+            showToast("Semua kolom harus diisi!", "error");
+            return;
+        }
+
+        // Validasi waktu (opsional)
+        const mulai = document.getElementById("jamMulai").value;
+        const selesai = document.getElementById("jamSelesai").value;
+        if (mulai && selesai) {
+            const [j1, m1] = mulai.split(':').map(Number);
+            const [j2, m2] = selesai.split(':').map(Number);
+            const totalMulai = j1 * 60 + m1;
+            const totalSelesai = j2 * 60 + m2;
+            // Jika tidak melewati tengah malam dan mulai lebih besar dari selesai
+            if (totalMulai >= totalSelesai && !(totalMulai >= 1200 && totalSelesai <= 300)) {
+                showToast("Jam selesai harus lebih lambat dari jam mulai! (kecuali over midnight)", "error");
+                return;
+            }
+        }
+
+        if (editIndex === "") {
+            daftarJadwal.push({ label, waktu, type });
+            showToast("Jadwal berhasil ditambahkan!", "success");
+        } else {
+            daftarJadwal[editIndex] = { label, waktu, type };
+            showToast("Jadwal berhasil diperbarui!", "success");
+        }
+        renderJadwal();
+        tutupForm();
+    }
+
+    function editJadwal(index) {
+        bukaForm();
+        const item = daftarJadwal[index];
+        document.getElementById("inputLabel").value = item.label;
+        document.getElementById("inputWaktu").value = item.waktu;
+        document.getElementById("inputType").value = item.type;
+        document.getElementById("editIndex").value = index;
+
+        if (item.waktu && item.waktu.includes(" - ")) {
+            const parts = item.waktu.split(" - ");
+            document.getElementById("jamMulai").value = parts[0];
+            document.getElementById("jamSelesai").value = parts[1];
+        }
+    }
+
+    function hapusJadwal(index) {
+        // Tanpa confirm, langsung hapus dengan notifikasi
+        const label = daftarJadwal[index].label;
+        daftarJadwal.splice(index, 1);
+        renderJadwal();
+        showToast(`"${label}" berhasil dihapus!`, 'success');
+    }
+
+    function bukaForm_Override() {
+        bukaForm();
+        document.getElementById("jamMulai").value = "12:00";
+        document.getElementById("jamSelesai").value = "13:00";
+        syncTimeInputs();
+    }
+
+    function syncTimeInputs() {
+        const mulai = document.getElementById("jamMulai").value || "00:00";
+        const selesai = document.getElementById("jamSelesai").value || "00:00";
+        document.getElementById("inputWaktu").value = `${mulai} - ${selesai}`;
+    }
+
+    // Inisialisasi
+    renderJadwal();
+    update();
+    setInterval(update, 1000);
+    console.clear();
+</script>
+</body>
+</html>
